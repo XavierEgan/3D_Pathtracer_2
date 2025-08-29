@@ -1,7 +1,16 @@
-#include "optix.h"
-#include "optix_stubs.h"
-#include "cuda_runtime.h"
-#include "glm/glm.hpp"
+#include <optix.h>
+#include <optix_stubs.h>
+#include <optix_function_table.h>
+#include <cuda_runtime.h>
+
+#include "ext/glm/glm.hpp"
+
+template <typename T>
+struct Record {
+	__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+
+	T data;
+};
 
 int main() {
 	// make an Optix context to manage the gpu (section 4)
@@ -35,28 +44,34 @@ int main() {
 	// make the traingle array
 	buildInputs[0].type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
 	OptixBuildInput& buildInput = buildInputs[0];
-
 	int numVertices = 3;
+	const int numIndices = 3;
 	CUdeviceptr d_vertexBuffer;
-
 	int numTriangles = 1;
 	CUdeviceptr d_indexBuffer;
-
-	cudaMalloc((void **) &d_vertexBuffer, sizeof(float3) * 3);
-	cudaMalloc((void **) &d_indexBuffer, sizeof(int) * 3);
+	CUdeviceptr d_sbtIndexOffsetBuffer;
 
 	float3 verts[3] = {
 		make_float3(-1,  1, 1),
 		make_float3(-1, -1, 1),
-		make_float3( 1, -1, 1),
+		make_float3(1, -1, 1),
 	};
 
 	int indices[3] = {
 		0, 1, 2
 	};
 
-	cudaMemcpy((void *) d_vertexBuffer, verts, sizeof(float3) * 3, cudaMemcpyHostToDevice);
-	cudaMemcpy((void *) d_indexBuffer, indices, sizeof(int) * 3, cudaMemcpyHostToDevice);
+	size_t sbtIndexOffsetBuffer[1] = { 0 };
+
+	unsigned int flags[1] = { OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT };
+
+	cudaMalloc((void **) &d_vertexBuffer, sizeof(float3) * numVertices);
+	cudaMalloc((void **) &d_indexBuffer, sizeof(int) * numIndices);
+	cudaMalloc((void **) &d_sbtIndexOffsetBuffer, sizeof(int) * numTriangles);
+
+	cudaMemcpy((void *) d_vertexBuffer, verts, sizeof(float3) * numVertices, cudaMemcpyHostToDevice);
+	cudaMemcpy((void *) d_indexBuffer, indices, sizeof(int) * numIndices, cudaMemcpyHostToDevice);
+	cudaMemcpy((void *) d_sbtIndexOffsetBuffer, sbtIndexOffsetBuffer, sizeof(int) * numTriangles, cudaMemcpyHostToDevice);
 
 	buildInput.triangleArray.vertexBuffers = &d_vertexBuffer;
 	buildInput.triangleArray.numVertices = numVertices;
@@ -67,9 +82,14 @@ int main() {
 	buildInput.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
 	buildInput.triangleArray.indexStrideInBytes = 0;
 	buildInput.triangleArray.preTransform = 0;
+
+	buildInput.triangleArray.numSbtRecords = 1;
+	buildInput.triangleArray.sbtIndexOffsetBuffer = d_sbtIndexOffsetBuffer;
+	buildInput.triangleArray.flags = flags;
 	
 	OptixAccelBufferSizes bufferSizes = {};
-	optixAccelComputeMemoryUsage(optixContext, &accelOptions, buildInputs, 2, &bufferSizes);
+	int numBuildInputs = 1;
+	optixAccelComputeMemoryUsage(optixContext, &accelOptions, buildInputs, numBuildInputs, &bufferSizes);
 
 	void* d_output;
 	void* d_temp;
@@ -97,8 +117,14 @@ int main() {
 	cudaFree((void *) d_indexBuffer);
 
 	/*------------------------------------------------------------*/
+	// Program pipeline creation (6)
 
 
+	/*------------------------------------------------------------*/
+	// build the SBT (7)
+	// get the record set up (7.1)
+	
+	
 
 	/*------------------------------------------------------------*/
 

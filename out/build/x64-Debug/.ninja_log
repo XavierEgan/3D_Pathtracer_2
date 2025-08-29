@@ -1,3 +1,35 @@
 # ninja log v5
-2	2647	7759104689229882	CMakeFiles/d.dir/src/main.cu.obj	d1fa4aace289a899
-2674	2852	7759104691315349	d.exe	60772a7bb6aac44
+6	26	0	C:/Users/xavie/Desktop/Mother Folder/coding stuff/PROJECTS/3d_Graphics/3D_Pathtracer_C++_2/3D_Pathtracer_2/out/build/x64-Debug/CMakeFiles/cmake.verify_globs	c304e92d033a4bb
+34	455	7781327015294838	CMakeFiles/PATHTRACER.dir/src/Stb_Implimentation.cpp.obj	522787832a98458f
+32	711	7781327017866236	CMakeFiles/PATHTRACER.dir/src/PtError.cpp.obj	e65cd05d4d899a78
+27	912	7781327019869530	CMakeFiles/PATHTRACER.dir/src/ObjParser.cpp.obj	a02a63fa6891c7a
+42	1164	7781327022391095	_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.obj	56ff1be459f48c89
+37	1375	7781327024489140	CMakeFiles/3dPathTracerTests.dir/tests/test.cpp.obj	56450e83163ee29f
+29	2168	7781327032337938	CMakeFiles/PATHTRACER.dir/src/Optix_Implimentation.cu.obj	28dc3f2d5e3c4c1
+2169	2204	7781327032776472	PATHTRACER.lib	38880b3f3e368aeb
+40	2365	7781327034349924	_deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.obj	97ac036cf3dacb00
+2365	2405	7781327034748591	lib/gtest.lib	7ddada72ed00239a
+2405	2427	7781327035034171	lib/gtest_main.lib	39c1b8f8f7be0b45
+2427	2671	7781327037316313	3dPathTracerTests.exe	ab8164487b91350f
+16	30	0	C:/Users/xavie/Desktop/Mother Folder/coding stuff/PROJECTS/3d_Graphics/3D_Pathtracer_C++_2/3D_Pathtracer_2/out/build/x64-Debug/CMakeFiles/cmake.verify_globs	c304e92d033a4bb
+33	1138	7781327281656827	CMakeFiles/3dPathTracerTests.dir/tests/test.cpp.obj	56450e83163ee29f
+1138	1247	7781327282523925	3dPathTracerTests.exe	ab8164487b91350f
+18	32	0	C:/Users/xavie/Desktop/Mother Folder/coding stuff/PROJECTS/3d_Graphics/3D_Pathtracer_C++_2/3D_Pathtracer_2/out/build/x64-Debug/CMakeFiles/cmake.verify_globs	c304e92d033a4bb
+36	675	7781359717155823	CMakeFiles/PATHTRACER.dir/src/PtError.cpp.obj	e65cd05d4d899a78
+34	875	7781359719139194	CMakeFiles/PATHTRACER.dir/src/ObjParser.cpp.obj	a02a63fa6891c7a
+875	904	7781359719408286	PATHTRACER.lib	38880b3f3e368aeb
+15	30	0	C:/Users/xavie/Desktop/Mother Folder/coding stuff/PROJECTS/3d_Graphics/3D_Pathtracer_C++_2/3D_Pathtracer_2/out/build/x64-Debug/CMakeFiles/cmake.verify_globs	c304e92d033a4bb
+12	26	0	C:/Users/xavie/Desktop/Mother Folder/coding stuff/PROJECTS/3d_Graphics/3D_Pathtracer_C++_2/3D_Pathtracer_2/out/build/x64-Debug/CMakeFiles/cmake.verify_globs	c304e92d033a4bb
+27	1143	7781360797809070	CMakeFiles/3dPathTracerTests.dir/tests/test.cpp.obj	56450e83163ee29f
+1143	1306	7781360799134633	3dPathTracerTests.exe	ab8164487b91350f
+16	29	0	C:/Users/xavie/Desktop/Mother Folder/coding stuff/PROJECTS/3d_Graphics/3D_Pathtracer_C++_2/3D_Pathtracer_2/out/build/x64-Debug/CMakeFiles/cmake.verify_globs	c304e92d033a4bb
+31	388	7781361119147872	CMakeFiles/PATHTRACER.dir/src/PtError.cpp.obj	e65cd05d4d899a78
+389	418	7781361119416973	PATHTRACER.lib	38880b3f3e368aeb
+418	514	7781361120194371	3dPathTracerTests.exe	ab8164487b91350f
+15	28	0	C:/Users/xavie/Desktop/Mother Folder/coding stuff/PROJECTS/3d_Graphics/3D_Pathtracer_C++_2/3D_Pathtracer_2/out/build/x64-Debug/CMakeFiles/cmake.verify_globs	c304e92d033a4bb
+30	381	7781361242188368	CMakeFiles/PATHTRACER.dir/src/PtError.cpp.obj	e65cd05d4d899a78
+382	410	7781361242457470	PATHTRACER.lib	38880b3f3e368aeb
+410	506	7781361243204425	3dPathTracerTests.exe	ab8164487b91350f
+16	31	0	C:/Users/xavie/Desktop/Mother Folder/coding stuff/PROJECTS/3d_Graphics/3D_Pathtracer_C++_2/3D_Pathtracer_2/out/build/x64-Debug/CMakeFiles/cmake.verify_globs	c304e92d033a4bb
+33	1120	7781362535730506	CMakeFiles/3dPathTracerTests.dir/tests/test.cpp.obj	56450e83163ee29f
+1121	1244	7781362536737138	3dPathTracerTests.exe	ab8164487b91350f
