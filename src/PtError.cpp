@@ -24,8 +24,10 @@ std::ostream& pt::operator<<(std::ostream& oss, const pt::PtErrorType& error) no
 	switch (error) {
 	case(pt::PtErrorType::OK):
 		oss << "OK";
+		break;
 	case(pt::PtErrorType::FileFormatError):
 		oss << "FileFormatError";
+		break;
 	default:
 		break;
 	}
