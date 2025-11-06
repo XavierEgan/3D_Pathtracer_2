@@ -24,6 +24,7 @@ class VertexNormalParseTestFixture : public ::testing::TestWithParam<VertexNorma
 protected:
 	std::istringstream testStream;
 	std::vector<pt::Mesh> meshs;
+	std::vector<pt::Material> materials; // this is empty coz were not testing materials
 	pt::PtError error;
 public:
 	VertexNormalParseTestFixture() {
@@ -39,7 +40,7 @@ public:
 TEST_P(VertexNormalParseTestFixture, ParsesVertex) {
 	const VertexNormalParseCase& testCase = GetParam();
 
-	error = pt::ObjParser::parseStream(testStream, meshs);
+	error = pt::ObjParser::parseStream(testStream, meshs, materials);
 
 	if (!testCase.shouldBeOk) {
 		ASSERT_NE(error, pt::PtErrorType::OK);
@@ -72,9 +73,9 @@ INSTANTIATE_TEST_SUITE_P(
 		VertexNormalParseCase{ "vn 1 1 1",						true, true,		normVec },		// ACCEPTS no decimal place
 		VertexNormalParseCase{ "vn 01 01 01",					true, true,		normVec },		// ACCEPTS leading zero
 		VertexNormalParseCase{ "vn 01.0 01.0 01.0",				true, true,		normVec },		// ACCEPTS leading zero and decimal
-		VertexNormalParseCase{ "vn -1 -1 -1",					true, true,		-normVec },	// ACCEPTS negative no decimal place
-		VertexNormalParseCase{ "vn -01 -01 -01",				true, true,		-normVec },	// ACCEPTS negative leading zero
-		VertexNormalParseCase{ "vn -01.0 -01.0 -01.0",			true, true,		-normVec },	// ACCEPTS negative leading zero and decimal
+		VertexNormalParseCase{ "vn -1 -1 -1",					true, true,		-normVec },		// ACCEPTS negative no decimal place
+		VertexNormalParseCase{ "vn -01 -01 -01",				true, true,		-normVec },		// ACCEPTS negative leading zero
+		VertexNormalParseCase{ "vn -01.0 -01.0 -01.0",			true, true,		-normVec },		// ACCEPTS negative leading zero and decimal
 
 		VertexNormalParseCase{ "vn 1.0 1.0 1.0",				true, true,		normVec },		// ACCEPTS three values
 		VertexNormalParseCase{ "vn 1.0 1.0 1.0 1.0",			true, true,		normVec },		// ACCEPTS four values (NOTE: any value past 3 is ignored)
@@ -86,7 +87,9 @@ INSTANTIATE_TEST_SUITE_P(
 		VertexNormalParseCase{ "vn",							true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS no values
 		VertexNormalParseCase{ "vn 1.0",						true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS one value
 		VertexNormalParseCase{ "vn 1.0 1.0",					true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS two values
-		VertexNormalParseCase{ "vn 1.0 1.0 1.0",				false, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS when there is no object and returns acceptable error
+		VertexNormalParseCase{ "vn 1.0 1.0 1.0",				false,false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS when there is no object
 		VertexNormalParseCase{ "vn t",							true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError }		// REJECTS when there is a letter instead of number
+	
+		
 	)
 );

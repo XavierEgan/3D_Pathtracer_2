@@ -1,19 +1,10 @@
 #include "ObjParser.hpp"
 #include <cctype>
+#include <filesystem>
 
-pt::PtError pt::ObjParser::parseFile(std::string fileName, std::vector<pt::Mesh>& meshs) {
-	std::ifstream inFS(fileName);
 
-	pt::PtError error = parseStream(inFS, meshs);
-	
-	if (error != pt::PtErrorType::OK) {
-		std::cout << "Reading OBJ File Failed - '" << error.message << "'" << std::endl;
-	}
-
-	return error;
-}
 namespace ObjParserHelpers {
-	static inline pt::PtError ensureObjExists(std::vector<pt::Mesh>& meshs) {
+	static pt::PtError ensureObjExists(std::vector<pt::Mesh>& meshs) {
 		if (meshs.size() == 0) {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Trying to read data before any objects have been defined");
 		}
@@ -21,7 +12,7 @@ namespace ObjParserHelpers {
 		return pt::PtErrorType::OK;
 	}
 
-	static inline pt::PtError newObject(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
+	static pt::PtError newObject(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
 		std::string name;
 		lineStream >> name;
 		meshs.emplace_back(name);
@@ -29,7 +20,7 @@ namespace ObjParserHelpers {
 		return pt::PtErrorType::OK;
 	}
 
-	static inline pt::PtError newVertex(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
+	static pt::PtError newVertex(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
 		// we will ignore w
 		float x = 0, y = 0, z = 0, w = 1.0;
 		if (!(lineStream >> x >> y >> z)) {
@@ -43,7 +34,7 @@ namespace ObjParserHelpers {
 		return pt::PtErrorType::OK;
 	}
 
-	static inline pt::PtError newVertexNormal(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
+	static pt::PtError newVertexNormal(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
 		float x = 0, y = 0, z = 0;
 		if (!(lineStream >> x >> y >> z)) {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in a vertex normal failed");
@@ -58,12 +49,15 @@ namespace ObjParserHelpers {
 		return pt::PtErrorType::OK;
 	}
 
-	static inline pt::PtError newVertexTexture(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
+	static pt::PtError newVertexTexture(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
 		// last two are optional, but default to zero so this should be fine
 		float x = 0, y = 0, z = 0;
-		if (!(lineStream >> x >> y >> z)) {
+		if (!(lineStream >> x)) {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in vertex texture (uv) coords failed");
 		}
+
+		lineStream >> y >> z;
+
 		meshs.back().vertexTextureCoordinates.emplace_back(x, y, z);
 
 		return pt::PtErrorType::OK;
@@ -77,7 +71,7 @@ namespace ObjParserHelpers {
 		vvtvn
 	};
 
-	static inline pt::PtError newFace(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
+	static pt::PtError newFace(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
 		// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
 		std::array<std::string, 3> faces;
 
@@ -200,16 +194,30 @@ namespace ObjParserHelpers {
 		return pt::PtErrorType::OK;
 	}
 
-	static inline pt::PtError setMaterial(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
+	static inline pt::PtError setMaterial(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs, std::vector<pt::Material>& materials) {
 		return pt::PtErrorType::OK;
 	}
 
-	static inline pt::PtError linkMtlFile(std::istringstream& lineStream, std::vector<pt::Mesh>& meshs) {
+	static inline pt::PtError linkMtlFile(std::string mtlFileName, std::vector<pt::Material>& materials) {
 		return pt::PtErrorType::OK;
 	}
 }
 
-pt::PtError pt::ObjParser::parseStream(std::istream& stream, std::vector<pt::Mesh>& meshs) {
+pt::PtError pt::ObjParser::parseFile(std::string fileName, std::vector<pt::Mesh>& meshs, std::vector<pt::Material>& materials) {
+	std::ifstream inFS(fileName);
+
+	if (!inFS.is_open() || !inFS.good()) {
+		std::ostringstream errorStream;
+		errorStream << "error reading material file '" << fileName << "'";
+		return pt::PtError(pt::PtErrorType::FileFormatError, errorStream.str());
+	}
+
+	pt::PtError error = parseStream(inFS, meshs, materials);
+
+	return error;
+}
+
+pt::PtError pt::ObjParser::parseStream(std::istream& stream, std::vector<pt::Mesh>& meshs, std::vector<pt::Material>& materials) {
 	std::string line;
 	getline(stream, line);
 
@@ -284,8 +292,20 @@ pt::PtError pt::ObjParser::parseStream(std::istream& stream, std::vector<pt::Mes
 			}
 
 		} else if (elementType == "usemtl") {
+			pt::PtError error = ObjParserHelpers::setMaterial(lineStream, meshs, materials);
+
+			if (error != pt::PtErrorType::OK) {
+				return error;
+			}
 
 		} else if (elementType == "mtllib") {
+			std::string fileName;
+			lineStream >> fileName;
+			pt::PtError error = ObjParserHelpers::linkMtlFile(fileName, materials);
+
+			if (error != pt::PtErrorType::OK) {
+				return error;
+			}
 
 		} else if (elementType == "#") {
 			
@@ -297,7 +317,8 @@ pt::PtError pt::ObjParser::parseStream(std::istream& stream, std::vector<pt::Mes
 
 		getline(stream, line);
 		lineStream = std::istringstream(line);
-
-		return pt::PtErrorType::OK;
 	}
+
+	return pt::PtErrorType::OK;
 }
+

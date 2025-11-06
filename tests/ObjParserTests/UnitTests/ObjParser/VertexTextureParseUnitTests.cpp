@@ -10,7 +10,6 @@
 struct VertexTextureParseCase {
 	std::string objFileContents;
 	bool makeDummyMesh;
-	bool shouldBeOk;
 	glm::vec3 expectedValue = glm::vec3(0.0f, 0.0f, 0.0f);
 	pt::PtErrorType expectedError = pt::PtErrorType::OK;
 
@@ -24,6 +23,7 @@ class VertexTextureParseTestFixture : public ::testing::TestWithParam<VertexText
 protected:
 	std::istringstream testStream;
 	std::vector<pt::Mesh> meshs;
+	std::vector<pt::Material> materials; // this is empty coz were not testing materials
 	pt::PtError error;
 public:
 	VertexTextureParseTestFixture() {
@@ -39,9 +39,9 @@ public:
 TEST_P(VertexTextureParseTestFixture, ParsesVertex) {
 	const VertexTextureParseCase& testCase = GetParam();
 
-	error = pt::ObjParser::parseStream(testStream, meshs);
+	error = pt::ObjParser::parseStream(testStream, meshs, materials);
 
-	if (!testCase.shouldBeOk) {
+	if (testCase.expectedError != pt::PtErrorType::OK) {
 		ASSERT_NE(error, pt::PtErrorType::OK);
 		EXPECT_EQ(error, testCase.expectedError);
 
@@ -66,19 +66,17 @@ INSTANTIATE_TEST_SUITE_P(
 	// ACCEPTED tests should modify the vector
 	// REJECTED tests should not
 	::testing::Values(
-		VertexTextureParseCase{ "vt 1 1 1",						true, true,		glm::vec3(1.0f, 1.0f, 1.0f) },		// ACCEPTS no decimal place
-		VertexTextureParseCase{ "vt 01 01 01",					true, true,		glm::vec3(1.0f, 1.0f, 1.0f) },		// ACCEPTS leading zero
-		VertexTextureParseCase{ "vt 01.0 01.0 01.0",			true, true,		glm::vec3(1.0f, 1.0f, 1.0f) },		// ACCEPTS leading zero and decimal
-		VertexTextureParseCase{ "vt -1 -1 -1",					true, true,		glm::vec3(-1.0f, -1.0f, -1.0f) },	// ACCEPTS negative no decimal place
-		VertexTextureParseCase{ "vt -01 -01 -01",				true, true,		glm::vec3(-1.0f, -1.0f, -1.0f) },	// ACCEPTS negative leading zero
-		VertexTextureParseCase{ "vt -01.0 -01.0 -01.0",			true, true,		glm::vec3(-1.0f, -1.0f, -1.0f) },	// ACCEPTS negative leading zero and decimal
+		VertexTextureParseCase{ "vt 1 1 1",						true,		glm::vec3(1.0f, 1.0f, 1.0f) },		// ACCEPTS no decimal place
+		VertexTextureParseCase{ "vt 01 01 01",					true,		glm::vec3(1.0f, 1.0f, 1.0f) },		// ACCEPTS leading zero
+		VertexTextureParseCase{ "vt 01.0 01.0 01.0",			true,		glm::vec3(1.0f, 1.0f, 1.0f) },		// ACCEPTS leading zero and decimal
+		VertexTextureParseCase{ "vt -1 -1 -1",					true,		glm::vec3(-1.0f, -1.0f, -1.0f) },	// ACCEPTS negative no decimal place
+		VertexTextureParseCase{ "vt -01 -01 -01",				true,		glm::vec3(-1.0f, -1.0f, -1.0f) },	// ACCEPTS negative leading zero
+		VertexTextureParseCase{ "vt -01.0 -01.0 -01.0",			true,		glm::vec3(-1.0f, -1.0f, -1.0f) },	// ACCEPTS negative leading zero and decimal
 
-		VertexTextureParseCase{ "vt 1.0 1.0 1.0",				true, true,		glm::vec3(1.0f, 1.0f, 1.0f) },		// ACCEPTS three values
-		VertexTextureParseCase{ "vt 1.0 1.0",					true, true,		glm::vec3(1.0f, 1.0f, 0.0f) },		// ACCEPTS two values (optional defaults to 0)
-		VertexTextureParseCase{ "vt 1.0",						true, true,		glm::vec3(1.0f, 0.0f, 0.0f) },		// ACCEPTS one values (optional defaults to 0)
+		VertexTextureParseCase{ "vt 1.0 1.0 1.0",				true,		glm::vec3(1.0f, 1.0f, 1.0f) },		// ACCEPTS three values
+		VertexTextureParseCase{ "vt 1.0 1.0",					true,		glm::vec3(1.0f, 1.0f, 0.0f) },		// ACCEPTS two values (optional defaults to 0)
+		VertexTextureParseCase{ "vt 1.0",						true,		glm::vec3(1.0f, 0.0f, 0.0f) },		// ACCEPTS one values (optional defaults to 0)
 
-		VertexTextureParseCase{ "vt",							true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError },	// REJECTS no values
-		VertexTextureParseCase{ "vt 1.0",						true, false,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError }		// REJECTS one value
-
+		VertexTextureParseCase{ "vt",							true,	glm::vec3(0.0f, 0.0f, 0.0f), pt::PtErrorType::FileFormatError }	// REJECTS no values
 	)
 );
