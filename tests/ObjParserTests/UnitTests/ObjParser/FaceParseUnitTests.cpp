@@ -29,6 +29,7 @@ class FaceParseTestFixture : public ::testing::TestWithParam<FaceParseCase> {
 protected:
 	std::istringstream testStream;
 	std::vector<pt::Mesh> meshs;
+	std::vector<pt::Material> materials;
 	pt::PtError error;
 public:
 	FaceParseTestFixture() {

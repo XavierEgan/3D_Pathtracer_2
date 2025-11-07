@@ -25,6 +25,14 @@ namespace MtlParserHelpers {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in ambient failed");
 		}
 
+		// range check
+		if (x < 0.0f || y < 0.0f || z < 0.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of ambient is less than 0");
+		}
+		if (x > 1.0f || y > 1.0f || z > 1.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of ambient is greater than 1");
+		}
+
 		materials.back().ambientColor = glm::vec3(x, y, z);
 
 		return pt::PtErrorType::OK;
@@ -35,6 +43,14 @@ namespace MtlParserHelpers {
 
 		if (!(lineStream >> x >> y >> z)) {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in diffuse failed");
+		}
+		
+		// range check
+		if (x < 0.0f || y < 0.0f || z < 0.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of diffuse is less than 0");
+		}
+		if (x > 1.0f || y > 1.0f || z > 1.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of diffuse is greater than 1");
 		}
 
 		materials.back().diffuseColor = glm::vec3(x, y, z);
@@ -49,6 +65,14 @@ namespace MtlParserHelpers {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in specular failed");
 		}
 
+		// range check
+		if (x < 0.0f || y < 0.0f || z < 0.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of specular is less than 0");
+		}
+		if (x > 1.0f || y > 1.0f || z > 1.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of specular is greater than 1");
+		}
+
 		materials.back().specularColor = glm::vec3(x, y, z);
 
 		return pt::PtErrorType::OK;
@@ -59,6 +83,14 @@ namespace MtlParserHelpers {
 
 		if (!(lineStream >> x)) {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in specular exponent failed");
+		}
+
+		// range check
+		if (x < 0.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of specular exponent less than 0");
+		}
+		if (x > 1000.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of specular exponent greater than 1000");
 		}
 
 		materials.back().specularExponent = x;
@@ -73,6 +105,14 @@ namespace MtlParserHelpers {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in transparent failed");
 		}
 
+		// range check
+		if (x < 0.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of transparent less than 0");
+		}
+		if (x > 1.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of transparent greater than 1");
+		}
+
 		materials.back().transparent = x;
 
 		return pt::PtErrorType::OK;
@@ -84,8 +124,19 @@ namespace MtlParserHelpers {
 		if (!(lineStream >> x)) {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in transparent failed");
 		}
+		
+		// since its inverse
+		x = 1 - x;
 
-		materials.back().transparent = 1 - x;
+		// range check
+		if (x < 0.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of transparent less than 0");
+		}
+		if (x > 1.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of transparent greater than 1");
+		}
+
+		materials.back().transparent = x;
 
 		return pt::PtErrorType::OK;
 	}
@@ -95,6 +146,14 @@ namespace MtlParserHelpers {
 
 		if (!(lineStream >> x >> y >> z)) {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in transmission filter failed");
+		}
+
+		// range check
+		if (x < 0.0f || y < 0.0f || z < 0.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of transmission filter is less than 0");
+		}
+		if (x > 1.0f || y > 1.0f || z > 1.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of transmission filter is greater than 1");
 		}
 
 		materials.back().transmissionFilter = glm::vec3(x, y, z);
@@ -107,6 +166,14 @@ namespace MtlParserHelpers {
 
 		if (!(lineStream >> x)) {
 			return pt::PtError(pt::PtErrorType::FileFormatError, "Reading in optical density/index of refraction failed");
+		}
+
+		// range check
+		if (x < 0.001f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of index of recfraction less than 0.001");
+		}
+		if (x > 10.0f) {
+			return pt::PtError(pt::PtErrorType::FileFormatError, "Value of index of recfraction greater than 10.0");
 		}
 
 		materials.back().indexOfRefraction = x;

@@ -37,11 +37,14 @@ TEST_P(MtlParseTestFloatFixture, MtlParses) {
 
 	error = pt::MtlParser::parseStream(testStream, materials);
 
-	EXPECT_FLOAT_EQ(materials.back().specularExponent, testCase.expectedNs);
-	EXPECT_FLOAT_EQ(materials.back().transparent, testCase.expecteddTransparency);
-	EXPECT_FLOAT_EQ(materials.back().indexOfRefraction, testCase.expectedNi);
+	// were not checking material creation, so its fine
+	if (materials.size() != 0) {
+		EXPECT_FLOAT_EQ(materials.back().specularExponent, testCase.expectedNs);
+		EXPECT_FLOAT_EQ(materials.back().transparent, testCase.expecteddTransparency);
+		EXPECT_FLOAT_EQ(materials.back().indexOfRefraction, testCase.expectedNi);
+	}
 
-	ASSERT_NE(error, testCase.expectedError);
+	ASSERT_EQ(error, testCase.expectedError);
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -57,14 +60,41 @@ INSTANTIATE_TEST_SUITE_P(
 		// Ns, specular exponent
 		MtlParseCaseFloat{ "Ns -0.1", true, pt::PtErrorType::FileFormatError },
 		MtlParseCaseFloat{ "Ns 1000.1", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseFloat{ "Ns 0.0", true, pt::PtErrorType::OK},
-		MtlParseCaseFloat{ "Ns 500.0", true, pt::PtErrorType::OK },
-		MtlParseCaseFloat{ "Ns 1000.0", true, pt::PtErrorType::OK },
+		MtlParseCaseFloat{ "Ns 0.0", true, pt::PtErrorType::OK, 0.0},
+		MtlParseCaseFloat{ "Ns 500.0", true, pt::PtErrorType::OK, 500.0 },
+		MtlParseCaseFloat{ "Ns 1000.0", true, pt::PtErrorType::OK, 1000.0 },
 
 		MtlParseCaseFloat{ "Ns a", true, pt::PtErrorType::FileFormatError },
-		MtlParseCaseFloat{ "Ns", true, pt::PtErrorType::FileFormatError }
+		MtlParseCaseFloat{ "Ns", true, pt::PtErrorType::FileFormatError },
 
 		// d, dissolve (inverse transparency)
+		MtlParseCaseFloat{ "d -0.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "d 1.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "d 0.0", true, pt::PtErrorType::OK, 0.0, 1.0 },
+		MtlParseCaseFloat{ "d 0.2", true, pt::PtErrorType::OK, 0.0, 0.8 },
+		MtlParseCaseFloat{ "d 1.0", true, pt::PtErrorType::OK, 0.0, 0.0 },
 
+		MtlParseCaseFloat{ "d a", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "d", true, pt::PtErrorType::FileFormatError },
+
+		// Tr, transparency
+		MtlParseCaseFloat{ "Tr -0.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "Tr 1.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "Tr 0.0", true, pt::PtErrorType::OK, 0.0, 0.0 },
+		MtlParseCaseFloat{ "Tr 0.2", true, pt::PtErrorType::OK, 0.0, 0.2 },
+		MtlParseCaseFloat{ "Tr 1.0", true, pt::PtErrorType::OK, 0.0, 1.0 },
+
+		MtlParseCaseFloat{ "Tr a", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "Tr", true, pt::PtErrorType::FileFormatError },
+
+		// Ni, index of refraction/optical density
+		MtlParseCaseFloat{ "Ni 0.0", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "Ni 10.1", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "Ni 0.001", true, pt::PtErrorType::OK, 0.0, 0.0, 0.001 },
+		MtlParseCaseFloat{ "Ni 5.0", true, pt::PtErrorType::OK, 0.0, 0.0, 5.0 },
+		MtlParseCaseFloat{ "Ni 10.0", true, pt::PtErrorType::OK, 0.0, 0.0, 10.0 },
+
+		MtlParseCaseFloat{ "Ni a", true, pt::PtErrorType::FileFormatError },
+		MtlParseCaseFloat{ "Ni", true, pt::PtErrorType::FileFormatError }
 	)
 );
