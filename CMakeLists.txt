@@ -16,30 +16,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 find_package(CUDAToolkit REQUIRED) #
-find_package(OPTIX90 REQUIRED)     # gets OPTIX_INCLUDE_DIR 
+find_package(OPTIX90 REQUIRED)     # gets OptiX_INCLUDE
 find_package(Pathtracer REQUIRED)  # gets PATHTRACER_INCLUDE_DIR PATHTRACER_LIB
 
-message("CMAKE_SOURCE_DIR: " "${CMAKE_SOURCE_DIR}")
+add_executable(3dPathTracerApp "appMain.cpp")
 
-add_executable(
+set_property(TARGET 3dPathTracerApp PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+
+target_link_libraries(
     3dPathTracerApp
-    "${CMAKE_SOURCE_DIR}/main.cu"
+    PRIVATE
+        PATHTRACER::pathtracer # we dont need any device side functions because were just calling lib functions
 )
 
 target_include_directories(
-    3dPathTracerApp
-    PUBLIC
-        ${OPTIX_INCLUDE_DIR}
-)
-
-
-target_link_libraries(
     3dPathTracerApp 
     PRIVATE
-        PATHTRACER::pathtracer
+        "${CMAKE_SOURCE_DIR}/include"
 )
 
 include(CTest)
@@ -56,17 +52,19 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 file(GLOB_RECURSE TEST_SOURCES "${CMAKE_SOURCE_DIR}/tests/*.cpp" "${CMAKE_SOURCE_DIR}/tests/*.cu")
-add_executable(3dPathTracerTests ${TEST_SOURCES})
 
+
+add_executable(3dPathTracerTests ${TEST_SOURCES})
 target_link_libraries(
     3dPathTracerTests 
-    PRIVATE
+    PUBLIC
         gtest_main
+        CUDA::cudart
         PATHTRACER::pathtracer
 )
 
 target_include_directories(
     3dPathTracerTests
-    PRIVATE
+    PUBLIC
         "${CMAKE_SOURCE_DIR}/tests"
 )

@@ -17,8 +17,8 @@ if(NOT OPTIX_INCLUDE_DIR)
 endif()
 
 file(GLOB_RECURSE PATH_TRACER_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cu"
 )
 
 add_library(PATHTRACER ${PATH_TRACER_SOURCES})
@@ -39,13 +39,16 @@ if(NOT PATHTRACER_INCLUDE_DIR)
     message(FATAL_ERROR "PATHTRACER_INCLUDE_DIR not found")
 endif()
 
+target_link_libraries(PATHTRACER
+    PRIVATE
+        CUDA::cudart
+)
+
 target_include_directories(PATHTRACER
-    PUBLIC
+    PRIVATE
         ${PATHTRACER_INCLUDE_DIR}
         ${OPTIX_INCLUDE_DIR}
-        CUDA::cuda_driver
-        CUDA::cudart
-    PRIVATE
+        ${CUDA_INCLUDE_DIRS}
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
