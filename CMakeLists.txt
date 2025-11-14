@@ -18,8 +18,6 @@ set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-find_package(CUDAToolkit REQUIRED) #
-find_package(OPTIX90 REQUIRED)     # gets OptiX_INCLUDE
 find_package(Pathtracer REQUIRED)  # gets PATHTRACER_INCLUDE_DIR PATHTRACER_LIB
 
 add_executable(3dPathTracerApp "appMain.cpp")

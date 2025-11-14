@@ -12,13 +12,16 @@
 # OPTIX_INCLUDE_DIR
 # OPTIX_FOUND
 
+find_package(CUDAToolkit REQUIRED) #
+find_package(OPTIX90 REQUIRED)     # gets OptiX_INCLUDE
+
 if(NOT OPTIX_INCLUDE_DIR)
     message(FATAL_ERROR "OPTIX_INCLUDE_DIR must be set")
 endif()
 
 file(GLOB_RECURSE PATH_TRACER_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cu"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ObjParser/**/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ObjParser/**/*.cu"
 )
 
 add_library(PATHTRACER ${PATH_TRACER_SOURCES})
@@ -42,6 +45,7 @@ endif()
 target_link_libraries(PATHTRACER
     PRIVATE
         CUDA::cudart
+        CUDA::cuda_driver
 )
 
 target_include_directories(PATHTRACER
