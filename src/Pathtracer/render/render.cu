@@ -3,6 +3,8 @@
 #include <optix_stubs.h>
 #include <cuda_runtime.h>
 
+#include "getIrData.hpp"
+
 /*
  * Takes a vector of Mesh and Material
  * Then renders an image with Optix and returns it as a char*
@@ -22,7 +24,7 @@ char* render(std::vector<pt::Mesh> meshs, std::vector<pt::Material> materials) {
 	cuStreamCreate(&cuStream, CU_STREAM_NON_BLOCKING);
 	
 /*****************************************************************************/
-
+	// Build acceleration structures
 /*****************************************************************************/
 	
 	// declare stuff
@@ -135,10 +137,40 @@ char* render(std::vector<pt::Mesh> meshs, std::vector<pt::Material> materials) {
 	}
 
 /*****************************************************************************/
+	// Build the optix pipeline
+/*****************************************************************************/
+
+	OptixModuleCompileOptions moduleCompileOptions = {};
+	moduleCompileOptions.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+	moduleCompileOptions.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+	moduleCompileOptions.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_MINIMAL;
+	moduleCompileOptions.numPayloadTypes = 0;
+	moduleCompileOptions.payloadTypes = 0;
+
+	OptixPipelineCompileOptions pipelineCompileOptions = {};
+	pipelineCompileOptions.usesMotionBlur = false;
+	pipelineCompileOptions.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
+	pipelineCompileOptions.numPayloadValues = 2;
+	pipelineCompileOptions.numAttributeValues = 2;
+	pipelineCompileOptions.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
+	pipelineCompileOptions.pipelineLaunchParamsVariableName = "params";
+	pipelineCompileOptions.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
+
+	OptixModule module = nullptr;
+
+	std::string irDataString = getIrData();
+
+	const char* irData = irDataString.data();
+	size_t irDataSize = irDataString.size();
+
+	std::string logString;
+	size_t logStringSize = sizeof(logString);
+
+	OptixResult res = optixModuleCreate(optixContext, &moduleCompileOptions, &pipelineCompileOptions, irData, irDataSize, logString.data(), logStringSize, &module);
 
 /*****************************************************************************/
 
-
+/*****************************************************************************/
 
 	return nullptr;
 }
