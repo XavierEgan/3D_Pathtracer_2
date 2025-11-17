@@ -2,4 +2,6 @@
 
 std::string getIrData() {
 
+
+	return "";
 }

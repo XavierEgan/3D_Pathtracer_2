@@ -24,13 +24,20 @@ endif()
 # get pt sources excluding .optix ones
 file(GLOB_RECURSE PATH_TRACER_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/**/[^.]*.cu"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cu"
 )
 
 # get optix kernel sources
 file(GLOB_RECURSE OPTIX_DEVICE_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.optix.cu"
 )
+
+# remove .optix.cu files from PATH_TRACER_SOURCES
+list(REMOVE_ITEM PATH_TRACER_SOURCES ${OPTIX_DEVICE_SOURCES})
+
+foreach(file ${OPTIX_DEVICE_SOURCES})
+    message(STATUS "optix file found: ${file}")
+endforeach()
 
 # make OPTIX_IR_OUTPUTS variable
 set(OPTIX_IR_OUTPUTS "")
@@ -42,7 +49,7 @@ foreach(src ${OPTIX_DEVICE_SOURCES})
 
     add_custom_command(
         OUTPUT ${out}
-        COMMAND ${CUDAToolkit_NVCC_EXECUTABLE}
+        COMMAND nvcc
             -optix-ir
             --use_fast_math
             -I${OPTIX_INCLUDE_DIR}
@@ -55,6 +62,10 @@ foreach(src ${OPTIX_DEVICE_SOURCES})
     )
 
     list(APPEND OPTIX_IR_OUTPUTS ${out})
+endforeach()
+
+foreach(file ${OPTIX_IR_OUTPUTS})
+    message(STATUS "optix file compiled: ${file}")
 endforeach()
 
 # makes a buidable target (cmake --build . --target optix_ir)

@@ -9,6 +9,9 @@
  * Takes a vector of Mesh and Material
  * Then renders an image with Optix and returns it as a char*
  */
+
+//TODO: move these to their own functions, currently everything is in a single big function
+
 char* render(std::vector<pt::Mesh> meshs, std::vector<pt::Material> materials) {
 	// initialize optix
 	optixInit();
@@ -140,6 +143,7 @@ char* render(std::vector<pt::Mesh> meshs, std::vector<pt::Material> materials) {
 	// Build the optix pipeline
 /*****************************************************************************/
 
+	// set compile options
 	OptixModuleCompileOptions moduleCompileOptions = {};
 	moduleCompileOptions.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
 	moduleCompileOptions.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
@@ -147,6 +151,7 @@ char* render(std::vector<pt::Mesh> meshs, std::vector<pt::Material> materials) {
 	moduleCompileOptions.numPayloadTypes = 0;
 	moduleCompileOptions.payloadTypes = 0;
 
+	// set pipeline compile options
 	OptixPipelineCompileOptions pipelineCompileOptions = {};
 	pipelineCompileOptions.usesMotionBlur = false;
 	pipelineCompileOptions.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
@@ -156,21 +161,29 @@ char* render(std::vector<pt::Mesh> meshs, std::vector<pt::Material> materials) {
 	pipelineCompileOptions.pipelineLaunchParamsVariableName = "params";
 	pipelineCompileOptions.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
 
+	// declare module
 	OptixModule module = nullptr;
 
+	// get the compiled ir file
 	std::string irDataString = getIrData();
-
 	const char* irData = irDataString.data();
 	size_t irDataSize = irDataString.size();
 
-	std::string logString;
-	size_t logStringSize = sizeof(logString);
+	// make a logstring to write to
+	std::unique_ptr<char[]> logStringData = std::make_unique<char[]>(2048);
+	size_t logStringSize = 2048;
 
-	OptixResult res = optixModuleCreate(optixContext, &moduleCompileOptions, &pipelineCompileOptions, irData, irDataSize, logString.data(), logStringSize, &module);
+	OptixResult res = optixModuleCreate(optixContext, &moduleCompileOptions, &pipelineCompileOptions, irData, irDataSize, logStringData.get(), &logStringSize, &module);
+
+	std::string logString(logStringData.get(), logStringSize);
+
+	std::cout << "optixModuleCreate finished with: '" << logString << "'" << std::endl;
 
 /*****************************************************************************/
-
+	// Make the SBT
 /*****************************************************************************/
+
+
 
 	return nullptr;
 }
